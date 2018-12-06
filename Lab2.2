@@ -1,0 +1,43 @@
+#include<iostream>
+#include<string.h>
+using namespace std;
+void Use(int &amount, int &years, double &rate);
+void in(int &amount, int &years, double &rate);
+int main()
+{
+	int amount, years;
+	double rate;
+	in(amount,years,rate);
+	Use(amount,years,rate);
+	return 0;
+}
+
+void in(int &amount, int &years, double &rate)
+{
+	cout<<"Enter initial amount:"<<endl;
+	cin>>amount;
+	cout<<"Enter number of years:"<<endl;
+	cin>>years;
+	cout<<"Enter interest rate (percent per year):"<<endl;
+	cin>>rate;
+}
+void Use(int &amount, int &years, double &rate)
+{
+	double temp=amount;
+	for(int i=0; i<years; i++)
+	{
+		temp=temp*(1+rate/100);
+	}
+	cout<<"At the end of "<<years<<" years, you will have "<<temp<<" dollars.";
+}
+
+
+
+
+
+
+
+
+
+
+
