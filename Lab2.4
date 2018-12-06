@@ -1,0 +1,68 @@
+#include<iostream>
+#include<string.h>
+using namespace std;
+
+void in(int &first, int &second, char &oper, int &three, int &four);
+double Use(int first,  int second,char oper, int three, int four);
+void Again(int first,  int second,char oper, int three, int four);
+
+int main()
+{
+	int first,second,three,four;
+	char oper[100];
+	Again(first,0,second,three,four);
+	return 0;
+}
+
+void in(int &first, int &second, char &oper, int &three, int &four)
+{
+	char tempx;
+	cout<<"Enter first number, operator, second number:";
+	cin>>first>>tempx>>second>>oper>>three>>tempx>>four;
+}
+double Use(int first,  int second,char oper, int three, int four)
+{
+	switch (oper)
+	{
+		case '+':
+			{
+				cout<< first*four+second*three<< "/"<< second*four <<endl;
+				break;
+			}
+			
+		case '-':
+			{
+				cout<< first*four-second*three<< "/"<< second*four <<endl;
+				break;
+			}
+		case '*':
+		case 'x':
+			{
+				cout<< first*three <<"/"<< second*four <<endl;
+				break;
+			}
+		case '/':
+		case ':':
+			{
+				cout<< first*four <<"/"<< second*three <<endl;
+				break;
+			}
+		default:
+			{
+				cout<<"Please Enter Operator Again!";
+			}
+	}
+}
+void Again(int first,  int second,char oper, int three, int four)
+{
+	char temp[1];
+	temp[1]='y';
+	while(temp[1]=='y')
+	{
+		in(first,second,oper,three,four);
+		Use(first,second,oper,three,four);
+		cout<<"Do another (y/n)?"<<endl;
+		cin>>temp[1];
+			
+	}
+}
