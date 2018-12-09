@@ -1,0 +1,27 @@
+#include<iostream>
+#include<string.h>
+using namespace std;
+
+struct phone
+{
+	int area_code;
+	int exchange;	
+};
+
+void in()
+{
+	int value;
+	struct phone temp;
+	cout<<"Enter your area code, exchange, and number:";
+	cin>>temp.area_code>>temp.exchange>>value;
+	cout<<endl<<"My number is (212) 767-8900";
+	cout<<endl<<"Your number is ("<<temp.area_code<<") "<<temp.exchange<<"-"<<value;
+	
+}
+
+int main()
+{
+	in();
+	return 0;
+}
+
