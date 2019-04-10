@@ -1,0 +1,355 @@
+#include<iostream>
+#include<conio.h>
+#include<windows.h>
+using namespace std;
+
+#define FALSE 0
+#define TRUE 1
+#define boxx 30
+#define boxy 10
+#define MAX 10
+#define maxqueue 100
+#define s 5
+#define w 12
+
+int dem=0;
+
+void gotoxy(short x, short y) {
+	HANDLE hConsoleOutput;
+	COORD Cursor_an_Pos = { x, y };
+	hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+	SetConsoleCursorPosition(hConsoleOutput, Cursor_an_Pos);
+}
+
+void xoathongbao()
+{
+	gotoxy(0,0);
+	for(int i=0; i<100; i++)	cout<<" ";
+	gotoxy(0,1);
+	for(int i=0; i<100; i++)	cout<<" ";
+}
+
+void xoathangmay()
+{
+	for(int i=0; i<10; i++)
+	{
+		gotoxy(boxx,boxy + i);
+		cout<<" ";
+	}
+}
+
+void xoaqueue()
+{
+	for(int i=0; i<100;i++)
+	{
+		gotoxy(60,10+i+1);
+		cout<<" ";
+	}
+}
+
+struct queue
+{
+	int Rear, Front;
+	int node[maxqueue];
+};
+typedef struct queue QUEUE;
+
+void Creat_Queue(QUEUE &q)
+{
+	q.Front = q.Rear = -1;
+}
+
+int IsEmpty(QUEUE q)
+{
+	return ((q.Front == -1 && q.Rear == -1) ? TRUE : FALSE);
+}
+
+void Insert_Queue(QUEUE &q, int x)		//Them x vao QUEUE
+{
+	dem++;
+	if (q.Rear - q.Front + 1 == 0 || q.Rear - q.Front + 1 == maxqueue) // full
+		return;
+	if (q.Front == -1)			//Rong
+	{
+		q.Front = 0;
+		q.Rear = -1;
+	}
+	if (q.Rear == maxqueue - 1)	q.Rear = -1;		// Tran`
+	++q.Rear;
+	q.node[q.Rear] = x;
+}
+
+int Delete_Show(QUEUE &q, int &x)		//Hien thi x va xoa x trong QUEUE
+{
+	if (q.Front == -1) return 0;		//Rong
+	
+	x = q.node[q.Front];
+	
+	if (q.Front==q.Rear)				//Chi co 1 phan tu
+	{
+		q.Front = -1;
+		q.Rear = -1;
+	}
+	else
+	{
+		q.Front++;
+		if (q.Front == maxqueue)	q.Front = 0;  //Truong Rear Tran`, Rear = -1 -> max;
+	}
+	
+	return 1;
+}
+
+void thangmay()
+{
+	gotoxy(boxx - 2, boxy -1);
+	for(int i=0; i<s; i++)	cout<<char(176);
+	
+	for(int i=1; i<=w - 2; i++)
+	{
+		gotoxy(boxx - 2, boxy - 1 + i);
+		cout<<char(176);
+		gotoxy(boxx - 3 + s, boxy - 1 + i);
+		cout<<char(176);
+	}
+	
+	gotoxy(boxx - 2, boxy - 2 + w);
+	for(int i=0; i<s; i++)	cout<<char(176);
+}
+
+void Dichuyen(QUEUE &q, int &x, int &hientai)
+{
+
+	xoathongbao();
+	thangmay();
+	int Input;
+	gotoxy(boxx, boxy + (MAX - 1 - hientai));
+	if(hientai == 0)
+		cout<<"G";
+	else			
+		cout<<hientai;
+	Sleep(500);	
+	if(x == hientai)
+	{
+		Beep(440,200);
+		return;
+	}	
+		
+	do	//Di chuyen hientai -> x
+	{
+		Input = 0;
+		xoathangmay();
+		if(hientai >= x)
+		{
+			hientai--;
+		}
+		else
+		{
+			hientai++;
+		}		
+		gotoxy(boxx, boxy + (MAX - 1 - hientai));
+		if(hientai == 0)
+			cout<<"G";
+		else			
+			cout<<hientai;
+		Sleep(500);
+	}while(x != hientai);
+	Beep(440,200);
+}
+
+void displayqueue(QUEUE q);
+void sortup(QUEUE &q);
+void sortdown(QUEUE &q);
+void sort(QUEUE &q, int hientai);
+void xuly(QUEUE &q, int x)
+{
+	int hientai=0;
+	while(1)
+	{
+		xoathongbao();
+		gotoxy(0,0);
+		cout<<"Nhap vi tri nguoi muon di chuyen: ";
+		cin>>x;
+		if(x >= 0 && x <=9)
+		{
+			Dichuyen(q,x,hientai);
+			break;
+		}
+	}
+	while(1)
+	{
+		while(x != 11)
+		{
+			xoathongbao();
+			gotoxy(0,0);
+			cout<<"Nhap vi tri muon di chuyen! \t=|=\tNhap 11 de bat dau di chuyen! \t=|=\tNhap 22 de thoat";
+			gotoxy(0,1);
+			cin>>x;
+			if(x <= 9 && x >= 0)
+			{
+				Insert_Queue(q,x);
+				displayqueue(q);
+			}
+			if(x == 22)	return;
+		}
+		sort(q,hientai);
+		while(dem != 0)
+		{
+				displayqueue(q);
+				Delete_Show(q,x);
+				Dichuyen(q,x,hientai);
+				xoaqueue();
+				dem--;
+		};
+	}
+	
+	
+}
+
+void displayqueue(QUEUE q)
+{
+	gotoxy(60,10);
+	cout<<"QUEUE:";
+	if(q.Front == -1)	return;
+	
+	if(q.Front == q.Rear)
+	{
+		gotoxy(60,11);
+		if(q.node[q.Front] == 0)
+			cout<<"G";
+		else			
+			cout<<q.node[q.Front];
+		return;
+	}
+	
+	int run = q.Front;
+	for(int i=0; i<dem; i++)
+	{
+		if(run + i > maxqueue - 1)
+			run = -i;
+		gotoxy(60,10+i+1);
+		if(q.node[run + i] == 0)
+			cout<<"G";
+		else			
+			cout<<q.node[run + i];
+	}
+	
+}
+
+int check(int x)
+{
+	if(x >  maxqueue - 1)
+		return (x - maxqueue);
+	
+	if(x < 0)
+		return (x + maxqueue);
+	return x;
+}
+
+void sortup(QUEUE &q)
+{
+	int i, j, x, y;
+	int key = q.node[q.Front];
+	//sxep
+	for(i=0; i < dem - 1; i++)
+	{
+		x = check(i + q.Front);
+		for( j = i + 1; j < dem; j++)
+		{
+			y = check(j + q.Front);
+			if(q.node[x] > q.node[y])
+				swap(q.node[x],q.node[y]);
+		}
+	}
+	//dem <
+	int count = 0;
+	for(i = 0; i < dem ; i++)
+	{
+		if(q.node[check(i + q.Front)] < key)
+			count++;
+	}
+	//sxep <
+	for(i=0; i < count - 1; i++)
+	{
+		x = check(i + q.Front);
+		for( j = i + 1; j < count; j++)
+		{
+			y = check(j + q.Front);
+			if(q.node[x] < q.node[y])
+				swap(q.node[x],q.node[y]);
+		}
+	}
+	//sxep
+	int tmp = count;
+	while(count != 0)
+	{
+		q.Rear = check(++q.Rear);
+		q.Front = check(++q.Front);
+		count--;
+		q.node[q.Rear] = q.node[check(q.Front - 1)];
+	}
+	displayqueue(q);
+}
+
+void sortdown(QUEUE &q)
+{
+	int i, j, x, y;
+	int key = q.node[q.Front];
+	//sxep
+	for(i=0; i < dem - 1; i++)
+	{
+		x = check(i + q.Front);
+		for( j = i + 1; j < dem; j++)
+		{
+			y = check(j + q.Front);
+			if(q.node[x] < q.node[y])
+				swap(q.node[x],q.node[y]);
+		}
+	}
+	//dem <
+	int count = 0;
+	for(i = 0; i < dem ; i++)
+	{
+		if(q.node[check(i + q.Front)] < key)
+			count++;
+	}
+	//sxep <
+	for(i=0; i < count - 1; i++)
+	{
+		x = check(i + q.Front);
+		for( j = i + 1; j < count; j++)
+		{
+			y = check(j + q.Front);
+			if(q.node[x] > q.node[y])
+				swap(q.node[x],q.node[y]);
+		}
+	}
+	//sxep
+	int tmp = count;
+	while(count != 0)
+	{
+		q.Rear = check(++q.Rear);
+		q.Front = check(++q.Front);
+		count--;
+		q.node[q.Rear] = q.node[check(q.Front - 1)];
+	}
+	displayqueue(q);
+}
+
+void sort(QUEUE &q, int hientai)
+{
+	if(hientai < q.node[q.Front])
+		sortup(q);
+	else
+		sortdown(q);
+}
+
+int main()
+{
+	QUEUE q;
+	Creat_Queue(q);
+	int x;
+	int hientai;
+	xuly(q,x);
+
+	return 0;
+}
