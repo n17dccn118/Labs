@@ -10,6 +10,8 @@
 #define BoxS 54
 #define BoxW 10
 
+bool update = true;
+
 using namespace std;
 
 struct NODEMEAN {
@@ -20,7 +22,7 @@ struct NODEMEAN {
 struct Word {
 	string This;
 	string Type;
-	char *Exam[MAXEXAM];
+	string *Exam[MAXEXAM];
 	NODEMEAN *First;
 };
 
@@ -122,9 +124,11 @@ NODEWORD* SplitInfo(string Line)
 		Text += Line[i++];
 		if (Line[i] == ';') 
 		{ 
-			p->data.Exam[pos++] = (char*)Text.c_str();
+			string *tmp = new string;
+			*tmp = Text;
+			p->data.Exam[pos++] = tmp;
 			Text = "";
-			i++; 
+			i++;
 		}
 	}	
 		
@@ -386,6 +390,260 @@ NODEWORD *Left(HTable *Dict, NODEWORD *Curr)
 	return NULL;
 }
 
+//        ===========  Detail ==========
+
+short stringlineout(string text, short max)		//Ham tra ve so dong can de xuat chuoi, dong co max ki tu
+{
+	short n = 1, x = max;
+	short i = 0,count;
+	string str="";
+	while(1)
+	{
+		while(text[i] != ' ')
+		{
+			str += text[i];
+			i++;
+			if( i == text.length())
+				break;
+		}
+		if(str.length() < x)
+		{
+			x = x - str.length() - 1;
+		}
+		else if(str.length() == x)
+		{
+			x = max;
+			n++;
+		}
+		else
+		{
+			x = max - str.length() - 1;
+			if( x < 0)
+			{
+				x = max;
+			}
+			n++;
+		}
+		if( i == text.length())
+				break;
+		i++;
+		str="";
+	}
+	return n;
+}
+
+void stringout(string text, int max)		//ham tu dong xuong dong, dong co max ki tu
+{
+	int x = max;
+	short i = 0,count;
+	string str="";
+	while(1)
+	{
+		while(text[i] != ' ')
+		{
+			str += text[i];
+			i++;
+			if( i == text.length())
+				break;
+		}
+		if(str.length() < x)
+		{
+			cout<<str<<" ";
+			x = x - str.length() - 1;
+		}
+		else if(str.length() == x)
+		{
+			cout<<str;
+			x = x - str.length();
+		}
+		else
+		{
+			cout<<endl;
+			cout<<str<<" ";
+			x = max - str.length() - 1;
+		}
+		if( i == text.length())
+				break;
+		i++;
+		str="";
+	}
+}
+
+void Detail(NODEWORD *Curr)
+{
+	int Line = 3;
+	gotoxy(BoxX + 2, BoxY + 1);
+	cout<<Curr->data.This;
+	gotoxy(BoxX + 2, BoxY + 2);
+	cout<<Curr->data.Type;
+	
+	NODEMEAN *Mean = Curr->data.First;
+	string Text = "Mean: ";
+	while(Mean != NULL)
+	{
+		Text = Text + Mean->data;
+		Mean = Mean->Next;
+		if(Mean != NULL)
+			Text += "; ";
+	}
+	gotoxy(BoxX + 2, BoxY + Line);
+	Line += stringlineout(Text, BoxS - 2);
+	stringout(Text, BoxS - 2);
+	
+	for(short i=0; i<MAXEXAM; i++)
+	{
+		if(Curr->data.Exam[i] != NULL)
+		{
+			gotoxy(BoxX + 2, BoxY + Line);
+			Line += stringlineout("Vi du: " + *Curr->data.Exam[i], BoxS - 2);
+			stringout("Vi du: " + *Curr->data.Exam[i], BoxS - 2);
+		}
+		else
+			break;
+	}
+	
+	
+}
+
+bool ConfirmDel()
+{
+	system("cls");
+	gotoxy(BoxX, BoxY);
+	cout<<"Do you really want to delete this word?";
+	gotoxy(BoxX, BoxY + 1);
+	cout<<"Press enter to confirm deletion!";
+	gotoxy(BoxX, BoxY + 2);
+	cout<<"Press Esc to return!";
+	short Input;
+	while( Input != 13 && Input != 27)	Input = getch();
+	system("cls");
+	if(Input == 13)
+		return true;
+	return false;
+}
+
+short Empty(NODEMEAN *First)
+{
+	return(First == NULL);
+}
+
+void DelFirst(NODEMEAN *&First)
+{
+	NODEMEAN *p;
+	if(Empty(First))
+	{
+		return;
+	}
+	p = First;
+	First = p->Next;
+	delete p;
+}
+
+void DeteleWord(HTable *&Dict, NODEWORD *&Del)
+{
+	if(Del != NULL)
+	{
+		int x = Address(Del->data.This);
+		NODEWORD *Head = Dict[x].Head, *Tail = Dict[x].Tail;
+		if(Head->data.This == Del->data.This)
+		{
+			if(Head->Right == NULL)
+			{
+				Head = Tail = NULL;
+			}
+			else
+			{
+				Head = Head->Right;
+				Head->Left = NULL;
+			}
+		}
+		else if(Del->data.This == Tail->data.This)
+		{
+			Tail = Tail->Left;
+			Tail->Right = NULL;
+		}
+		else
+		{
+			NODEWORD *LeftWord = Del->Left, *RightWord = Del->Right;
+			LeftWord->Right = RightWord;
+			RightWord->Left = LeftWord;
+			Del->Left = Del->Right = NULL;
+		}
+		NODEMEAN *Mean = Del->data.First;
+		while(Mean != NULL)
+		{
+			DelFirst(Mean);
+		}
+		delete Del;
+	}
+}
+
+void DeleteCurrent(HTable *&Dict, NODEWORD *&Curr)
+{
+	if(Curr != NULL)
+	{
+		NODEWORD *LeftWord =Left(Dict,Curr), *RightWord = Right(Dict,Curr);
+		if(LeftWord == NULL && RightWord == NULL )
+		{
+			Curr = NULL;
+		}
+		else
+		{
+			if(LeftWord == NULL)
+			{
+				Curr = RightWord;
+			}
+			else
+			{
+				Curr = LeftWord;
+			}
+		}
+		
+	}
+}
+
+short CountMean(NODEWORD *Curr)
+{
+	NODEMEAN *First = Curr->data.First;
+	int x=0;
+	while(First != NULL)
+	{
+		x++;
+		First = First->Next;
+	}
+	return x;
+}
+
+void Edit(HTable *&Dict, NODEWORD *&Curr)
+{
+	int x = 0;
+	x = x + CountMean(Curr) + 8;
+	string Field[x];
+	Field[0] = Curr->data.This;
+	Field[1] = Curr->data.Type;
+	NODEMEAN *First = Curr->data.First;
+	for(int i= 0; i< CountMean(Curr); i++)
+	{
+		Field[i+2] = First->data;
+		First = First->Next;
+	}
+	Field[x-5] = "";
+	short i = 0;
+	while(Curr->data.Exam != NULL)
+	{
+		Field[x - 5 + i] = *Curr->data.Exam[i];
+		i++;
+	}
+	if(i < 4)
+		for( ; i < 5; i++)
+		{
+			Field[i] = "";
+		}
+	
+}
+
+//		  =========== End Detail =============
+
 void SearchBox(HTable *&Dict, NODEWORD *&Curr)
 {
 	int Input = 0;
@@ -407,7 +665,6 @@ void SearchBox(HTable *&Dict, NODEWORD *&Curr)
 			if (FixText(Text) != "")
 				Curr = Search(Dict, FixText(Text));
 			else	FindFirst(Dict, Curr);
-			//	cout<"Ahihi";
 		}
 		
 		DisplayWord(Dict,Curr);
@@ -420,7 +677,35 @@ void SearchBox(HTable *&Dict, NODEWORD *&Curr)
 		{
 			case 13:	//Enter
 			{
-			
+				while(Input != 27)
+				{
+					system("cls");
+					Detail(Curr);
+					Input = getch();
+					switch(Input)
+					{
+						case 27:	//esc
+						{
+							break;
+						}
+						
+						case 8:		//backspace
+						{
+							break;
+						}
+						
+						case 83:	//delete
+						{
+							if(ConfirmDel())
+							{
+								DeleteCurrent(Dict,Curr);
+								update = true;
+								Input = 27;
+							}
+							break;
+						}
+					}
+				}
 				break;
 			}
 		
@@ -518,14 +803,21 @@ int main()
 	SearchBox(Dict,Curr);
 //	for(int i=0; i<26; i++)
 //	{
-//		if(tudien[i].Head != NULL && tudien[i].Tail != NULL)
+//		if(Dict[i].Head != NULL && Dict[i].Tail != NULL)
 //		{
-//			cout<<tudien[i].Head->data.This<<"\t"<<tudien[i].Tail->data.This<<endl;
-//			cout<<tudien[i].Head->data.Type<<"\t"<<tudien[i].Tail->data.Type<<endl;
-//			cout<<tudien[i].Head->data.First->data<<"\t"<<tudien[i].Tail->data.First->data<<"\n\n\n";
+//			cout<<Dict[i].Head->data.This<<"\t"<<Dict[i].Tail->data.This<<endl;
+//			cout<<Dict[i].Head->data.Type<<"\t"<<Dict[i].Tail->data.Type<<endl;
+//			cout<<Dict[i].Head->data.First->data<<"\t"<<Dict[i].Tail->data.First->data<<"\n";
+//			for(int j=0; j<5; j++)
+//			{
+//				if(Dict[i].Head->data.Exam[j] != NULL)
+//					cout<<*Dict[i].Head->data.Exam[j]<<"\t";
+//				if(Dict[i].Tail->data.Exam[j] != NULL)
+//					cout<<*Dict[i].Tail->data.Exam[j];
+//				cout<<endl;
+//			}
+//			cout<<"\n\n\n";
 //		}
 //	}
-	
-	
 	return 0;
 }
