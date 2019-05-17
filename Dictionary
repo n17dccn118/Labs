@@ -1,3 +1,10 @@
+
+//							The standard format of a word includes: 
+//									- word
+//									- type
+//									- a meaning
+//									- an example
+
 #include <iostream>
 #include <fstream>
 #include <windows.h>
@@ -38,7 +45,8 @@ struct Word
 	NODEMEAN *First;
 };
 
-struct NODEWORD {
+struct NODEWORD 
+{
 	Word data;
 	NODEWORD *Left;
 	NODEWORD *Right;
@@ -467,7 +475,7 @@ short stringlineout(string text, short max)		//Ham tra ve so dong can de xuat ch
 	return n;
 }
 
-void stringout(string text, int max)		//ham tu dong xuong dong, dong co max ki tu
+void stringout(string text, int max, int Line)		//ham tu dong xuong dong, dong co max ki tu
 {
 	int x = max;
 	short i = 0,count;
@@ -490,10 +498,12 @@ void stringout(string text, int max)		//ham tu dong xuong dong, dong co max ki t
 		{
 			cout<<str;
 			x = x - str.length();
+			Line++;
 		}
 		else
 		{
-			cout<<endl;
+			Line++;
+			gotoxy(BoxX + BoxS + 3, Line);
 			cout<<str<<" ";
 			x = max - str.length() - 1;
 		}
@@ -547,8 +557,8 @@ void Detail(NODEWORD *Curr)
 		if(Curr->data.Exam[i] != NULL)
 		{
 			gotoxy(BoxX + BoxS + 3, BoxY + Line + k);
-			Line += stringlineout("   > " + *Curr->data.Exam[i], BoxS1 - 2);
-			stringout("   > " + *Curr->data.Exam[i], BoxS1 - 2);
+			Line += stringlineout("   > " + *Curr->data.Exam[i], BoxS1 - BoxS - 7);
+			stringout("   > " + *Curr->data.Exam[i], BoxS1 - BoxS - 7, BoxY + Line + k);
 		}
 	}
 	
@@ -760,6 +770,60 @@ void Delete_mean_info(NODEMEAN *&First, string Text)
 	return;
 }
 
+void SortExam(NODEWORD *&Curr)
+{
+	if(CountExam(Curr) >= 1)
+	{
+		for(int i = 0; i < MAXEXAM - 1; i++)
+		{
+			if(Curr->data.Exam[i] == NULL && Curr->data.Exam[i+1] != NULL)
+			{
+				Curr->data.Exam[i] = Curr->data.Exam[i+1];
+				Curr->data.Exam[i+1] = NULL;
+			}
+		}
+	}
+}
+
+void DelMean(NODEMEAN *&First, string Text)
+{
+	NODEMEAN *Run = First;
+	if(First == NULL)	return;
+	if(Run->data == Text) 
+	{
+		First = Run->Next;
+		Run = NULL;
+		delete Run;
+		return;
+	}
+	
+	for( ; Run->Next != NULL && Run->Next->data != Text; Run = Run->Next);
+	
+	if(Run->Next != NULL)
+	{
+		NODEMEAN *q = Run->Next;
+		Run->Next = q->Next;
+		delete q;
+		return;
+	}
+	
+	return;
+}
+
+void DelExam(NODEWORD *&Curr, string Text)
+{
+	for(int i = 0; i < MAXEXAM; i++)
+	{
+		if(*Curr->data.Exam[i] == Text)
+		{
+			delete Curr->data.Exam[i];
+			Curr->data.Exam[i] = NULL;
+			return;
+		}
+	}
+	SortExam(Curr);
+}
+
 void Edit(HTable *&Dict, NODEWORD *&Curr)
 {
 	bool changed = false;
@@ -820,7 +884,7 @@ void Edit(HTable *&Dict, NODEWORD *&Curr)
 					{
 						EditBox();
 						gotoxy(BoxXE + 2, BoxYE + 2);
-						cout<<"YOU CAN DELETE TYPE OF THE WORD !";
+						cout<<"YOU CAN'T DELETE TYPE OF THE WORD !";
 						gotoxy(BoxXE + 2, BoxYE + 3);
 						cout<<"Press any key to continue !";
 						getch();
@@ -828,24 +892,33 @@ void Edit(HTable *&Dict, NODEWORD *&Curr)
 					}
 					else if(Line < x + 4 && Line > x + 3 - CountExam(Curr))
 					{
-						tmp = x - (Line - 3);
-						Curr->data.Exam[4 - tmp] = NULL;
-						delete Curr->data.Exam[4 - tmp];
-						Line = 4;
-						changed = true;
-						break;					
+						if( CountExam(Curr) > 1)
+						{
+							DelExam(Curr,Text);
+							Line--;
+							changed = true;
+							updated = true;	
+						}
+						else
+						{
+							EditBox();
+							gotoxy(BoxXE + 2, BoxYE + 1);
+							cout<<"The word must have at least one";
+							gotoxy(BoxXE + 2, BoxYE + 2);
+							cout<<"example !";
+							gotoxy(BoxXE + 2, BoxYE + 3);
+							cout<<"Press any key to continue !";
+							getch();
+							Del_EditBox();
+						}
+									
 					}
 					else
 					{
 						if( CountMean(Curr) > 1)
 						{
-							NODEMEAN *First = Curr->data.First;
-							short k = 0;
-							while(k < CountMean(Curr) && k != Line - 5)
-							{
-								First = First->Next;
-								k++;
-							}
+							DelMean(Curr->data.First,Text);
+							Line--;
 							changed = true;
 							update = true;	
 						}
