@@ -1464,6 +1464,7 @@ void AddWord(HTable *&Dict){
 	Del_Menu();	
 	while(Input != 27)
 	{
+		field[k-1] = text;
 		ComfilAddBox();
 		gotoxy(BoxX + BoxS +11, BoxY +2+ k);
 		if (dem < BoxS1-35 )	
