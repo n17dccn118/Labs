@@ -1492,7 +1492,6 @@ void AddWord(HTable *&Dict){
 				{
 					text=FixText(text);
 					printtextfield(text, k);
-					field[k-1] = text;
 					Del_Menu();
 					if(k<8) k++;
 					//if(k==9) goto Saveadd;
