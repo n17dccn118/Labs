@@ -1,0 +1,35 @@
+#include <iostream>
+#include <string.h>
+#include <Windows.h>
+
+using namespace std;
+
+void gotoxy(short x, short y) 
+{
+	HANDLE hConsoleOutput;
+	COORD Cursor_an_Pos = { x, y };
+	hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+	SetConsoleCursorPosition(hConsoleOutput, Cursor_an_Pos);
+}
+
+int main()
+{
+	string Text = " .S_sSSs     .S    sSSs  sdSS_SSSSSSbs   .S    sSSs_sSSs     .S_sSSs     .S_SSSs     .S_sSSs     .S S. ";
+	string Str = " .S_sSSs     .S    sSSs  sdSS_SSSSSSbs   .S    sSSs_sSSs     .S_sSSs     .S_SSSs     .S_sSSs     .S S. .SS~YS%%b   .SS   d%%SP  YSSS~S%SSSSSP  .SS   d%%SP~YS%%b   .SS~YS%%b   .SS~SSSSS   .SS~YS%%b   .SS SS.S%S   `S%b  S%S  d%S'         S%S       S%S  d%S'     `S%b  S%S   `S%b  S%S   SSSS  S%S   `S%b  S%S S%SS%S    S%S  S%S  S%S          S%S       S%S  S%S       S%S  S%S    S%S  S%S    S%S  S%S    S%S  S%S S%SS%S    S&S  S&S  S&S          S&S       S&S  S&S       S&S  S%S    S&S  S%S SSSS%S  S%S    d*S  S%S S%SS&S    S&S  S&S  S&S          S&S       S&S  S&S       S&S  S&S    S&S  S&S  SSS%S  S&S   .S*S   SS SS S&S    S&S  S&S  S&S          S&S       S&S  S&S       S&S  S&S    S&S  S&S    S&S  S&S_sdSSS     S S  S&S    S&S  S&S  S&S          S&S       S&S  S&S       S&S  S&S    S&S  S&S    S&S  S&S~YSY%b     SSS  S*S    d*S  S*S  S*b          S*S       S*S  S*b       d*S  S*S    S*S  S*S    S&S  S*S   `S%b    S*S  S*S   .S*S  S*S  S*S.         S*S       S*S  S*S.     .S*S  S*S    S*S  S*S    S*S  S*S    S%S    S*S  S*S_sdSSS   S*S   SSSbs       S*S       S*S   SSSbs_sdSSS   S*S    S*S  S*S    S*S  S*S    S&S    S*S  SSS~YSSY    S*S    YSSP       S*S       S*S    YSSP~YSSY    S*S    SSS  SSS    S*S  S*S    SSS    S*S              SP                SP        SP                  SP                 SP   SP            SP               Y                 Y         Y                   Y                  Y    Y             Y    ";
+
+	int k = 0;
+//	cout<<Text.length();
+	for(int i = 0; i < 14; i++)
+		for(int j = 0; j < Text.length(); i++)
+		{
+			if( Str[k] != ' ')
+			{
+				gotoxy( j, i);
+				cout << Str[k++];
+				Sleep(50);
+			}
+		}
+
+ 
+ 	return 0;
+}
